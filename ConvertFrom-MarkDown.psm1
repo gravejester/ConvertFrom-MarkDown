@@ -1,68 +1,36 @@
 function ConvertFrom-MarkDown {
-    <#
-        .SYNOPSIS
-            Read and convert a MarkDown document to HTML.
-        .DESCRIPTION
-            Read and convert a MarkDown document to HTML.
-        .EXAMPLE
-            ConvertFrom-MarkDown -Path ./document.md
-        .INPUTS
-            MarkDown
-        .OUTPUTS
-            HTML
-        .LINK
-            https://communary.net/
-        .LINK
-            https://github.com/lunet-io/markdig
-        .NOTES
-            This function is a PowerShell wrapper for markdig (https://github.com/lunet-io/markdig)
-            Author: Øyvind Kallstad
-            Date: 04.02.2018
-            Version: 1.0
-    #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'MarkDown')]
+    [OutputType([String])]
     param (
-        # Path to MarkDown document
-        [Parameter()]
+        [Parameter(ParameterSetName = 'Path')]
         [string] $Path,
-        # Discard YAML frontmatter at the beginning of a Markdown document
+        [Parameter(ParameterSetName = 'MarkDown', ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [string] $InputObject,
         [switch] $SkipYamlFrontMatter,
         [switch] $UseAbbreviations,
         [switch] $UseAutoIdentifiers,
         [switch] $UseAutoLinks,
         [switch] $UsePipeTables,
         [switch] $UseGridTables,
-        # Tag some HTML elements with bootstrap classes
         [switch] $UseBootstrap,
         [switch] $UseCustomContainers,
         [switch] $UseDefinitionLists,
         [switch] $UseDiagrams,
-        # Emoji and smiley replacement
         [switch] $UseEmoji,
-        # Support for strikethrough, subscript, superscript, inserted and marked
         [switch] $UseEmphasisExtras,
-        # Support for figures and figure captions
         [switch] $UseFigures,
         [switch] $UseFooters,
         [switch] $UseCitations,
         [switch] $UseFootnotes,
         [switch] $UseGenericAttributes,
-        # Generate hardline break for softline breaks
         [switch] $UseHardlineBreaks,
-        # Find, and automatically add links to JIRA issue numbers
         [switch] $UseJiraLinks,
-        # Add new type of list items (a., A., i., I.)
         [switch] $UseListExtras,
         [switch] $UseMathematics,
-        # Extend image Markdown links in case a video or an audio file is linked and output proper link
         [switch] $UseMediaLinks,
-        # Enable SmartyPants
         [switch] $UseSmartyPants,
         [switch] $UseTaskLists,
-        # Automatically render rel=nofollow to all links in an HTML output
         [switch] $UseNoFollowLinks,
-        # Disable URI escape with % characters for non-US-ASCII characters in order to workaround a bug under IE/Edge
-        # with local file links containing non US-ASCII chars. DO NOT USE OTHERWISE.
         [switch] $UseNonAsciiNoEscape,
         [switch] $UsePragmaLines,
         [switch] $UsePreciseSourceLocation,
@@ -70,14 +38,18 @@ function ConvertFrom-MarkDown {
     )
 
     try {
-        $null = [System.Reflection.Assembly]::LoadFile('C:\Users\grave\Scripts\PSStaticSiteBuilder\Markdig.0.14.9\lib\netstandard1.1\Markdig.dll')
 
-        if (-not(Test-Path -Path $Path)) {
-            Write-Warning "$Path not found!"
-            break
+        if ($PSCmdlet.ParameterSetName -eq 'Path') {
+            if (-not(Test-Path -Path $Path)) {
+                Write-Warning "$Path not found!"
+                break
+            }
+
+            $markdown = Get-Content -Path $Path -Raw
         }
-
-        $markdown = Get-Content -Path $Path -Raw
+        else {
+            $markdown = $InputObject
+        }
 
         # create a pipeline builder object
         # this is needed to handle extensions to markdig

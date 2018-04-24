@@ -1,9 +1,12 @@
 # ConvertFrom-MarkDown
 
-PowerShell function to convert a MarkDown document to HTML. This function is a wrapper for **markdig** (https://github.com/lunet-io/markdig).
+PowerShell function to convert MarkDown to HTML. This function is a wrapper for **markdig** (https://github.com/lunet-io/markdig).
+
+In the spirit of writing small specific functions that does one job, this function will not generate full HTML documents, but raw HTML of the MarkDown input. This means that you will have to combine the output with additional HTML if you want to use it in a web page.
 
 ## Examples
-TODO
+
+    Get-Help ConvertFrom-MarkDown -Examples
 
 ## Installation
 
